@@ -1,0 +1,658 @@
+= Spark AR Scripting Tutorial: Build an AR Puzzle Game
+
+image::images/RC.png[Bunny]
+
+== Introduction
+
+In this Spark AR tutorial, we will build a world AR effect game using scripting. You will learn how to use JavaScript to add logic and interactivity to your effects.
+
+=== Key Concepts
+
+This tutorial will cover the following key concepts:
+
+- Writing game logic in Spark AR with JavaScript
+
+- Working with reactive programming in Spark AR
+
+- Adding animations in Spark AR with scripting
+
+=== What We'll Build
+
+This tutorial will guide you in a step-by-step process to create a 3D puzzle game called Rabbit Coder, it's a game that helps first-time coders learn about the basic concepts of programming through puzzles. I created https://devpost.com/software/rabbit-coder[Rabbit Coder] for the first Facebook AR hackathon and ended up winning first place. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here] for yourself.
+
+image::images/demo-gif.gif[Game,width=240]
+
+By the end of this tutorial, you should have learned how to build a puzzle game in SparkAR with javaScript.
+
+NOTE: In this tutorial We will not add all the features of Rabbit Coder so as to make the tutorial easier to follow, we'll just focus on the main concepts of the game. The following topics will *not* be included:
+
+- Obstacles and Switches
+- Loop logic
+
+=== Rabbit Coder Game Design
+
+The objective of the game is to get the rabbit to the carrot using commands such as *forward*, *left*, and *right*, you can insert these commands in the game and press the play button to execute them. The image below shows a simple design of one of the levels. The player must pass through the path and reach the goal without touching the danger zone.
+
+image::images/lvl_1.png[Level 1]
+
+In the game, commands are represented by blocks, these blocks are executed from top to bottom, the executor will iterate through each block and if the block is equal to *forward* then the rabbit will move one step forward if the command is equal to *left* or *right* the rabbit will turn 90 degrees in the respective direction. The image below shows a simplified example of the command blocks.
+
+image::images/commands.png[Commands]
+
+In the commands above the rabbit will move 2 steps forward turn left and move one step forward.
+
+=== Knowledge Prerequisites
+
+Make sure you meet the following knowledge prerequisites before starting the tutorial:
+
+* You must have basic knowledge of JavaScript
+
+* You must have a basic understanding of Spark AR studio
+
+== Getting Started
+
+=== Software Prerequisites
+
+For this tutorial you will need:
+
+* Spark AR Studio v97
+
+* Visual Studio Code (but any code editor will work too)
+
+=== Downloading the Project
+
+To follow this tutorial:
+
+. https://github.com/harrybanda/Rabbit-Coder-Sample-Starter[Download the sample project].
+
+. Open the sample project in Spark AR Studio v97 and above.
+
+I have already imported the required game assets you need to help you get started.
+
+== Setting Up the Scene
+
+Before we start writing the game logic, we need to set up the scene. Game objects cannot be created dynamically with a script so we need to add them to the scene before we can access them in the script.
+
+=== Understanding the Assets
+
+Within the Assets Panel you'll find five folders and four 3D assets:
+
+- *Bunny* is the main character in the game
+- *Carrot* is the objective that the rabbit needs to reach
+- *tile* is the platform the rabbit will hop on
+- *Wall* surrounds the play area
+- *Textures* contains UI images and the water images
+- *Animation Sequences* contains the water animation
+- *Audio* contains all the sound effects our game will need
+
+image::images/2.JPG[Image]
+
+Within the *Scene* panel of the starter project you'll find a plane tracker with an empty null object inside it called *container*
+
+image::images/1.JPG[Image]
+
+=== Adding Null Objects
+
+Null objects act as empty groups and are a great way of grouping objects together, In this project, we'll group objects into 2 groups called *level* and *UI*.
+
+To add a null object:
+
+. Right-click on the *container* null object.
+. Select *Add > Null Object*
+. Rename the null object to *level*
+. Create another null object in *container* and rename it to *UI*
+
+The *level* null object will contain all our game objects and the *UI* null object will contain our 3D user interface elements shown in the game. Next:
+
+. Create a null object called *platforms* in *level*. 
+
+. Create a null object named *buttons* in *UI*
+
+. Create another null object named *blocks* in *UI*
+
+
+The *platforms* null object will contain all the platforms that the rabbit will hop on. While *buttons* will contain planes that will act as buttons in the game and *blocks* will contain planes that will act as command blocks.
+
+Your *Scene Panel* should look like this:
+
+image::images/3.JPG[Image]
+
+=== Adding Game Objects
+
+Click and drag the *bunny* asset into *level* to add it as a child. Do the same for *carrot* and *wall*.
+
+We're also going to update the scale values of the 3D objects so that it fits the plane tracker.
+
+. Select the *bunny* object in the Scene Panel.
+. Change the *x, y, and z-axis* scale to 0.15 in the Inspector Panel.
+
+image::images/4.JPG[Image]
+
+And for the *carrot* use the following values:
+
+image::images/5.JPG[Image]
+
+=== Adding Platforms
+
+The rabbit will hop on platforms to reach the carrot, normally with game engines, we can dynamically create objects with a script, the Spark AR scripting module does not allow us to create objects dynamically so we are going to duplicate the *platform* object from the *Scene Panel* manually.
+
+. Select and drag the *tile* from the *Assets Panel* into the *platforms* null object.
+
+. Change the *x, y, z scale* to *0.1* in the Inspector Panel
+
+. Rename *tile* to *platform0*
+
+. Right-click on *plaform0* and Click *Duplicate* this will create another platform object.
+
+. Go to the next platform object and repeat the duplication process until *plaform9*
+
+Your *Scene Panel* should look like this:
+
+image::images/6.JPG[Image]
+
+And we should have something like this in the 3D view:
+
+image::images/7.JPG[Image,width=720]
+
+
+=== Adding Water
+
+When the player enters a wrong command the rabbit will fall from a platform into the water, so the next thing we'll add is a plane with an animated texture to act like water.
+
+. Right-click *level*.
+. Select *Add > Plane*
+. Rename the plane to *water*
+. Change the scale and rotation of the *water* plane to look like this:
+
+image::images/8.JPG[Image]
+
+Your 3D scene should look like this:
+
+image::images/9.JPG[Image,width=480]
+
+Now to add the animated water texture:
+
+. Select the *water* plane
+. In the Inspector panel click the *+* button next to *materials*
+. Select the *water* material in the drop-down
+
+image::images/10.JPG[Image]
+
+This will apply a looped animation sequence with 32 frames. I created this animation by attaching the *frame_[1-32]* texture to the *water_animation* sequence and attaching the animation sequence to the *water* material.
+
+image::images/water.gif[Image,width=480]
+
+=== Adding a 3D User Interface
+
+Next, we are going to add the 3D user interface, first let's add the buttons:
+
+. Right-click *buttons* then *Add > Plane* to create a new plane
+. Name the plane *btn0*
+. Duplicate the button so that we have *btn0* to *btn3*
+
+Each button will have its own functionality, material, and transform values:
+
+. *btn0* -> move forward
+
+image::images/11.JPG[Image]
+
+
+. *btn1* -> turn left
+
+image::images/12.JPG[Image]
+
+
+. *btn2* -> turn right
+
+image::images/13.JPG[Image]
+
+
+. *btn3* -> play
+
+image::images/14.JPG[Image]
+
+Add one more plane in *buttons* name it *commands_ui* this will act as the background of our UI. Give it the following transform and material values:
+
+image::images/15.JPG[Image]
+
+You should see this in your scene:
+
+image::images/19.JPG[Image,width=480]
+
+Next, the UI needs to be re-arranged click the *UI* null object and add the following transform values:
+
+image::images/UI.JPG[Image]
+
+Next, add the following transform values to the *buttons* null object:
+
+image::images/20.JPG[Image]
+
+Add this to the *blocks* null object:
+
+image::images/blocks.JPG[Image]
+
+
+Now we need to add the command blocks:
+
+. Right-click *blocks* then *Add > Plane* to create a new plane
+. Name the plane *block0*
+. Untick visible in the inspector panel
+. Give it the following transform values:
+
+image::images/16.JPG[Image]
+
+We hide the blocks for now but we are going to use scripting to make the blocks visible when the player adds a command.
+
+ - Next duplicate the hidden blocks so that we have *block0* to *block9*. 
+ - Create one more plane and name it *program_ui* this will be the background for our command blocks, give it the following transform and material:
+
+image::images/17.JPG[Image]
+
+We need to add one more button to the *blocks* null object:
+
+. Right-click *blocks* > *Add* > *Plane*
+. Name the plane *btn4*
+. Give the plane the following transform and material values.
+
+image::images/23.JPG[Image]
+
+This button will allow us to remove blocks from the command window.
+
+Your final *Scene Panel* should look like this:
+
+image::images/18.JPG[Image]
+
+And your final scene should look like this:
+
+image::images/22.JPG[Image,width=720]
+
+== Scripting Rabbit Coder
+
+In this section, we are going to focus on building game logic with the Spark AR Scripting module using Javascript.
+
+. Click on *Add Asset* > *Script* to add a *script.js* file
+. Add another script file and name it *levels.js*
+. Open the *script.js* file and remove any code in there.
+
+=== Importing Objects
+
+Add this code to your script.js:
+
+[source,javascript]
+----
+const Scene = require("Scene");
+----
+
+The `require()` method tells the script we're looking for a module, we pass in the name of the module as the argument to specify the one we want to load. The *Scene* variable now contains a reference to the *Scene Module* that can be used to access the module's properties, methods, classes, and enums. Now we are going to add this code 
+below:
+
+[source,javascript]
+----
+Promise.all([
+
+]).then(function (results) {
+
+});
+----
+
+A promise is an object that may produce a single value some time in the future, either a resolved value or a reason that it’s not resolved. Inside the promise, we are going to import our game objects from the *Scene*.
+
+[source,javascript]
+----
+Promise.all([
+  Scene.root.findFirst("bunny"),
+  Scene.root.findFirst("carrot"),
+  Scene.root.findFirst("blocks"),
+  Scene.root.findFirst("platforms"),
+  Scene.root.findFirst("buttons"),
+]).then(function (results) {
+  // Game objects
+  const player = results[0];
+  const carrot = results[1];
+  const blocks = results[2];
+  const platforms = results[3];
+  const buttons = results[4];
+});
+----
+
+In the code above we are importing our objects from the *Scene* with `promise.all`, only when the imported objects are found will the code in the `then(function (){})` function run. We can access objects from *results* and assign a variable to them.
+If you have noticed we have imported two 3D objects (bunny and carrot) and three null objects (blocks, platforms, and buttons) we are going to use these null objects to access the objects inside them later on in the tutorial. Next, we are going to import the audio files:
+
+First, add this line at the top of your script just below the Scene import:
+
+[source,javascript]
+----
+const Audio = require("Audio");
+----
+
+Next update your `promise.all` code to look like this:
+
+
+[source,javascript]
+----
+Promise.all([
+  Scene.root.findFirst("bunny"),
+  Scene.root.findFirst("carrot"),
+  Scene.root.findFirst("blocks"),
+  Scene.root.findFirst("platforms"),
+  Scene.root.findFirst("buttons"),
+  Audio.getAudioPlaybackController("jump"),
+  Audio.getAudioPlaybackController("drop"),
+  Audio.getAudioPlaybackController("fail"),
+  Audio.getAudioPlaybackController("complete"),
+  Audio.getAudioPlaybackController("click"),
+  Audio.getAudioPlaybackController("remove"),
+]).then(function (results) {
+  // Game objects
+  const player = results[0];
+  const carrot = results[1];
+  const blocks = results[2];
+  const platforms = results[3];
+  const buttons = results[4];
+
+  // Game sounds
+  const jumpSound = results[5];
+  const dropSound = results[6];
+  const failSound = results[7];
+  const completeSound = results[8];
+  const clickSound = results[9];
+  const removeSound = results[10];
+});
+----
+
+From the code above we have imported the *Audio* module and added each `getAudioPlaybackController` to the promise, we have also assigend variables to them in the  `then` function. Now that we have access to all our Scene objects let's move on to the next step which is creating levels.
+
+=== Generating Levels
+
+A level is represented by a 5 x 5 grid of coordinates, on this grid we shall specify which coordinates are part of the *path* or the *danger zones*.
+
+- *Path* -> the coordinates that the rabbit can hope on
+- *Danger Zone* -> the coordinates that the rabbit *cannot* hope on.
+
+Each level has different *path* and *danger zone* coordinates the image below illustrates an example for a level, the *green* squares represent *path* coordinates while the *red* squares represent *danger zone* coordinates. In the image below the path coordinates are: *[3,2] [3,3] [3,4]*.
+
+image::images/grid_1.png[Image]
+
+Now that we have an idea of how that path is going to be generated we are going to define the path coordinates for each level in the *levels.js* file.
+
+. Open *levels.js* in your code editor and add the following code:
+
+[source,javascript]
+----
+module.exports = [
+  // level 1
+  {
+    path: [
+      [2, 3],
+      [3, 3],
+      [4, 3],
+    ],
+    facing: "east",
+  },
+  // level 2
+  {
+    path: [
+      [2, 4],
+      [2, 3],
+      [3, 3],
+      [4, 3],
+    ],
+    facing: "north",
+  },
+  // level 3
+  {
+    path: [
+      [4, 4],
+      [3, 4],
+      [3, 3],
+      [3, 2],
+      [2, 2],
+    ],
+    facing: "west",
+  },
+];
+
+----
+
+From the code above we are exporting an array of objects, each object in the array represents a level and each level has the following attributes:
+
+- *Path* -> These are the coordinates of the path as explained above.
+- *facing* -> This is the direction in which the rabbit will face when the level loads.
+
+NOTE: For teaching purposes, the game will only have three levels you can easily add your own levels if you wish.
+
+In the *script.js* add line of code to import the levels:
+
+[source,javascript]
+----
+const levels = require("./levels");
+----
+
+Next create a function called *initLevel* add this code in *then(function (results)* function
+
+[source,javascript]
+----
+...
+
+/*------------- Initialize current level -------------*/
+
+function initLevel() {
+
+}
+
+initLevel();
+----
+
+The *initLevel* function will run when the effect is launched. At this point your *script.js* file should look like this:
+
+[source,javascript]
+----
+const Scene = require("Scene");
+const Audio = require("Audio");
+
+Promise.all([
+  Scene.root.findFirst("bunny"),
+  Scene.root.findFirst("carrot"),
+  Scene.root.findFirst("blocks"),
+  Scene.root.findFirst("platforms"),
+  Scene.root.findFirst("buttons"),
+  Audio.getAudioPlaybackController("jump"),
+  Audio.getAudioPlaybackController("drop"),
+  Audio.getAudioPlaybackController("fail"),
+  Audio.getAudioPlaybackController("complete"),
+  Audio.getAudioPlaybackController("click"),
+  Audio.getAudioPlaybackController("remove"),
+]).then(function (results) {
+  // Game objects
+  const player = results[0];
+  const carrot = results[1];
+  const blocks = results[2];
+  const platforms = results[3];
+  const buttons = results[4];
+
+  // Game sounds
+  const jumpSound = results[5];
+  const dropSound = results[6];
+  const failSound = results[7];
+  const completeSound = results[8];
+  const clickSound = results[9];
+  const removeSound = results[10];
+
+  const levels = require("./levels");
+
+  /*------------- Initialize current level -------------*/
+
+  function initLevel() {
+  }
+
+  initLevel();
+});
+
+----
+
+==== Generating Grid Coordinates
+
+Before we can generate the path and danger zone coordinates we need to define a grid of *all* the coordinates.
+
+Just below the *levels* variable add this code:
+
+[source,javascript]
+----
+  const gridSize = 0.36;
+  const gridInc = 0.12;
+
+  let allCoordinates = createAllCoordinates();
+
+  function createAllCoordinates() {
+    // Creates a grid of coordinates
+    let coords = [];
+    for (let i = -gridSize; i <= gridSize; i += gridInc) {
+      for (let j = -gridSize; j <= gridSize; j += gridInc) {
+        let x = Math.round(i * 1e4) / 1e4;
+        let z = Math.round(j * 1e4) / 1e4;
+        coords.push([x, z]);
+      }
+    }
+    return coords;
+  }
+----
+
+
+The default unit of measurement in Spark AR is Meters, so our values will be in meters. In the code above we use the `gridSize` constant represents the size of the grid in *meters* while `gridInc` is the increment value that is added to each coordinate in order to form a grid. Each box in the grid has a size of *0.072* meters. The `createAllCoordinates` function has nested for loops that generate a 7 X 7 grid, the generated coordinate values are then stored in the `allCoordinates` variable.
+
+image::images/grid_2.png[Image]
+
+
+==== Generating Path Coordinates
+
+Add this code along with the other variables:
+
+
+[source,javascript]
+----
+let currentLevel = 0;
+let pathCoordinates = createPathCoordinates();
+----
+
+The code above will represent the current level as a number, since we only have 3 levels, *currentLevel* can be 0, 1 or 2. Next add the following function:
+
+
+[source,javascript]
+----
+ function createPathCoordinates() {
+    // Get the current level path coordinates from all the coordinates
+    let path = levels[currentLevel].path;
+    let coords = [];
+    for (let i = 0; i < path.length; i++) {
+      let x = allCoordinates[path[i][0]][1];
+      let z = allCoordinates[path[i][1]][1];
+      coords.push([x, z]);
+    }
+    return coords;
+  }
+----
+
+This function will generate values from the path defined in the level and `allCoordinates`.
+
+
+==== Generating Danger Zone Coordinates
+
+Add this line of code along with the other variables:
+
+
+[source,javascript]
+----
+ let dangerCoordinates = createDangerCoordinates();
+----
+
+This will hold all the coordinates except the path coordinates. Next add this code:
+
+
+[source,javascript]
+----
+  function createDangerCoordinates() {
+    // Get the danger coordinates by removing the current path coordinates
+    let coords = allCoordinates;
+    for (let i = 0; i < pathCoordinates.length; i++) {
+      for (let j = 0; j < coords.length; j++) {
+        let lvlCoordStr = JSON.stringify(pathCoordinates[i]);
+        let genCoordStr = JSON.stringify(coords[j]);
+        if (lvlCoordStr === genCoordStr) {
+          coords.splice(j, 1);
+        }
+      }
+    }
+    return coords;
+  }
+
+----
+
+The danger zones are generated by subtracting the `pathCoordinates` from the `allCoordinates`
+
+==== Placing Level Objects
+
+Nexr we are going to focus on setting the rabbit, carrot and platforms using the coordinates we just generated. First add the following vaiables to your code:
+
+[source,javascript]
+----
+let playerDir = levels[currentLevel].facing;
+let platformsUsed = 0;
+const playerInitY = 0.02;
+----
+
+- `playerDir` gets the direction the rabbit should face from *levels.js*
+- `platformsUsed` holds the number of platforms that have been shown in the level
+- `playerInitY` is the players initial position in the Y-axis
+
+Next in the `initLevel()` function add the following code:
+
+[source,javascript]
+----
+
+    playerDir = levels[currentLevel].facing;
+
+    // Set the player's initial position
+    player.transform.x = pathCoordinates[0][0];
+    player.transform.z = pathCoordinates[0][1];
+    player.transform.y = playerInitY;
+
+    // set carrot position
+    let goalX = pathCoordinates[pathCoordinates.length - 1][0];
+    let goalZ = pathCoordinates[pathCoordinates.length - 1][1];
+    carrot.transform.x = goalX;
+    carrot.transform.z = goalZ;
+    carrot.transform.y = 0.03;
+    carrot.hidden = false;
+
+    // Set the player's initial direction
+    if (playerDir === "east") {
+      player.transform.rotationY = 0;
+    } else if (playerDir === "north") {
+      player.transform.rotationY = degreesToRadians(90);
+    } else if (playerDir === "west") {
+      player.transform.rotationY = degreesToRadians(180);
+    } else if (playerDir === "south") {
+      player.transform.rotationY = degreesToRadians(270);
+    }
+
+    // Add the path platforms
+    for (let i = 0; i < pathCoordinates.length; i++) {
+      let path = pathCoordinates[i];
+      let x = path[0];
+      let z = path[1];
+      let platform = platforms.child("platform" + platformsUsed++);
+      platform.transform.x = x;
+      platform.transform.z = z;
+      platform.hidden = false;
+    }
+  }
+----
+
+The code above will first set the direction that the rabbit should face, next we set the player's initial position. From the `pathCoordinates` the first coordinate is always the rabbit's initial position and the last coordinate is always the position of the carrot. After that, we transform the rabbit's position based on the direction defined in the level. Lastly, we draw the path in the scene by iterating through `pathCoordinates`, getting each path, and applying it to a platform in the Scene. Save the code and check your Scene you should see that we have a level generated with three platforms.
+
+image::images/24.JPG[Image]
+
+You can try changing the `currentLevel` value to *1* or *2* you should see that the level arrangement changes.
+
+=== Adding Commands
+
