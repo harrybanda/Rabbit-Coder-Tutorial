@@ -1357,6 +1357,7 @@ If you’d like to continue building on this project, here are a few ideas:
 === Learning Resources
 
 Looking for more ways to develop your Spark AR skills Check out the https://sparkar.facebook.com/ar-studio/learn/tutorials/[official Spark AR Tutorials].
+
 You can find the full code sample on https://github.com/harrybanda/Rabbit-Coder-Sample-Full[GitHub].
 
 Thanks for reading! Happy coding! 
