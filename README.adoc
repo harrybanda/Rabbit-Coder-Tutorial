@@ -22,7 +22,7 @@ This tutorial will guide you in a step-by-step process to create a 3D puzzle gam
 
 image::images/demo-gif.gif[Game,width=240]
 
-By the end of this tutorial, you should have learned how to build a puzzle game in SparkAR with javaScript.
+By the end of this tutorial, you should have learned how to build a game with conplex game logic in SparkAR with javaScript.
 
 NOTE: In this tutorial, We will not add all the features of Rabbit Coder so as to make the tutorial easier to follow, we'll just focus on the main concepts of the game. The following topics will *not* be included:
 
