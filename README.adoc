@@ -1356,12 +1356,7 @@ If you’d like to continue building on this project, here are a few ideas:
 
 === Learning Resources
 
-Looking for more ways to develop your Spark AR skills Check out the https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[Official Spark AR Tutorials]. I used the following sites to obtain some of the game assets:
-
-- https://www.kenney.nl/assets[Kenney Game Assets] 
-
-- https://freesound.org/[Free Sound] 
-
+Looking for more ways to develop your Spark AR skills Check out the https://sparkar.facebook.com/ar-studio/learn/tutorials/[official Spark AR Tutorials].
 You can find the full code sample on https://github.com/harrybanda/Rabbit-Coder-Sample-Full[GitHub].
 
 Thanks for reading! Happy coding! 
