@@ -24,7 +24,7 @@ image::images/demo-gif.gif[Game,width=240]
 
 By the end of this tutorial, you should have learned how to build a puzzle game in SparkAR with javaScript.
 
-NOTE: In this tutorial We will not add all the features of Rabbit Coder so as to make the tutorial easier to follow, we'll just focus on the main concepts of the game. The following topics will *not* be included:
+NOTE: In this tutorial, We will not add all the features of Rabbit Coder so as to make the tutorial easier to follow, we'll just focus on the main concepts of the game. The following topics will *not* be included:
 
 - Obstacles and Switches
 - Loop logic
@@ -360,7 +360,7 @@ Promise.all([
 });
 ----
 
-From the code above we have imported the *Audio* module and added each `getAudioPlaybackController` to the promise, we have also assigend variables to them in the  `then` function. Now that we have access to all our Scene objects let's move on to the next step which is creating levels.
+From the code above we have imported the *Audio* module and added each `getAudioPlaybackController` to the promise, we have also assigned variables to them in the  `then` function. Now that we have access to all our Scene objects let's move on to the next step which is creating levels.
 
 === Generating Levels
 
@@ -443,52 +443,7 @@ function initLevel() {
 initLevel();
 ----
 
-The *initLevel* function will run when the effect is launched. At this point your *script.js* file should look like this:
-
-[source,javascript]
-----
-const Scene = require("Scene");
-const Audio = require("Audio");
-
-Promise.all([
-  Scene.root.findFirst("bunny"),
-  Scene.root.findFirst("carrot"),
-  Scene.root.findFirst("blocks"),
-  Scene.root.findFirst("platforms"),
-  Scene.root.findFirst("buttons"),
-  Audio.getAudioPlaybackController("jump"),
-  Audio.getAudioPlaybackController("drop"),
-  Audio.getAudioPlaybackController("fail"),
-  Audio.getAudioPlaybackController("complete"),
-  Audio.getAudioPlaybackController("click"),
-  Audio.getAudioPlaybackController("remove"),
-]).then(function (results) {
-  // Game objects
-  const player = results[0];
-  const carrot = results[1];
-  const blocks = results[2];
-  const platforms = results[3];
-  const buttons = results[4];
-
-  // Game sounds
-  const jumpSound = results[5];
-  const dropSound = results[6];
-  const failSound = results[7];
-  const completeSound = results[8];
-  const clickSound = results[9];
-  const removeSound = results[10];
-
-  const levels = require("./levels");
-
-  /*------------- Initialize current level -------------*/
-
-  function initLevel() {
-  }
-
-  initLevel();
-});
-
-----
+The *initLevel* function will run when the effect is launched. 
 
 ==== Generating Grid Coordinates
 
@@ -597,6 +552,7 @@ Nexr we are going to focus on setting the rabbit, carrot and platforms using the
 ----
 let playerDir = levels[currentLevel].facing;
 let platformsUsed = 0;
+const numOfPlatforms = 10;
 const playerInitY = 0.02;
 ----
 
@@ -656,3 +612,756 @@ You can try changing the `currentLevel` value to *1* or *2* you should see that 
 
 === Adding Commands
 
+image::images/blocks.png[Image]
+
+Now that we can generate levels it's time to make the rabbit move but before we do that let's first set up the commands. Commands allow us to instruct the rabbit what to do, in this game we are going to have 3 commands, *move forward*, *turn left* and *turn right*. To add commands we need to tap the 3D planes we added in the *buttons* null object, to do that add the following code at the top of your script
+
+[source,javascript]
+----
+const TouchGestures = require("TouchGestures");
+const Materials = require("Materials");
+----
+
+The `TouchGestures` class enables touch gesture detection, in our case we are going to use it to detect buttons taps and the `Materials` module provides access to the materials in an effect.
+
+Before we can add the commands we need to declaire some variables that are going to be needed. Add the following code at the top:
+
+[source,javascript]
+----
+  const states = {
+    start: 1,
+    running: 2,
+    complete: 3,
+    failed: 4,
+    uncomplete: 5,
+  };
+  let currentState = states.start;
+  let commands = [];
+  let blocksUsed = 0;
+  const blockSlotInc = 0.1;
+  const initBlockSlot = 0.6;
+  const numOfBlocks = 10;
+  const blockInitY = 0.9;
+  let nextBlockSlot = initBlockSlot;
+----
+
+
+
+In the code above `state` represents the current state of the game, we have 5 states:
+
+- *start* -> this is the initial game state
+- *running* -> this is when the game is running e.g the rabbit is moving
+- *complete* -> this state is called when a level is successfully completed
+- *failed* -> this state is called when the rabbit enters the danger zone
+- *uncomplete* this state is called when the rabbit does not fall off but also does not reach the goal.
+
+The `commands` array stores all the commands that the player inserts e.g *forward*, *left*, *Right*.
+
+`BlocksUsed` stores the number of blocks that the player has added, we use this to keep track of the number of blocks so that we do not go over the maximum number.
+
+`blockSlotInc` is the value that the added blocks are offset by, e.g. when a user adds a new command block it will be placed *0.1* meters lower.
+
+`InitBlockSlot` is the initial block position
+
+`numOfBlock` is the maximum number of blocks that we have in the Scene, If we wanted to add 3 more blocks we would change the number to 13 and duplicated 3 more blokes in the Scene panel.
+
+`nextBlockSlot` represents the next slot that is available for a block to be inserted. 
+
+Now that we have the variables its time to add the logic, add the following code:
+
+[source,javascript]
+----
+ function addCommand(move) {
+    if (currentState === states.start) {
+      if (blocksUsed < numOfBlocks) {
+        let block = blocks.child("block" + blocksUsed++);
+        nextBlockSlot -= blockSlotInc;
+        block.transform.y = nextBlockSlot;
+        block.material = Materials.get(move + "_block_mat");
+        block.hidden = false;
+        commands.push({ command: move, block: block });
+        clickSound.setPlaying(true);
+        clickSound.reset();
+      }
+    }
+  }
+----
+
+The `addCommand` function above takes in a string value called *move* this value can either be `"forward"`, `"left"` or `"right"`. On the next line, we check if *currentState* is equal to the initial state, then we can add blocks. In the second If statement we check if the blocks that have been used are greater than the max number of blocks, we have in our scene. In this case, if we run out of command blocks we prevent the game from trying to access blocks that do no exist.
+
+From the code above this line `let block = blocks.child("block" + blocksUsed++);` looks for the block in the *blocks* null object by it's name. 
+
+[source,javascript]
+----
+nextBlockSlot -= blockSlotInc;
+block.transform.y = nextBlockSlot;
+block.material = Materials.get(move + "_block_mat");
+block.hidden = false;
+----
+
+From the lines above first, we set the position of the next slot and insert the block on that slot. we then apply the correct material based on the name of the block and make it visible. On the last 3 lines, we add the blocks to the `commands` array and play a sound effect.
+
+Next add the following code anywhere inside the promise *then* function:
+
+[source,javascript]
+----
+for (let i = 0; i < 4; i++) {
+    let button = buttons.child("btn" + i);
+    TouchGestures.onTap(button).subscribe(function () {
+      switch (i) {
+        case 0:
+          addCommand("forward");
+          break;
+        case 1:
+          addCommand("left");
+          break;
+        case 2:
+          addCommand("right");
+          break;
+        case 3:
+          break;
+      }
+    });
+  }
+----
+
+The for loop above iterates through all the buttons in our null object and assigns an `onTap` listener to each button. We then add a switch statement to call the `addCommand` function we added passing in the respective command.
+
+Now we should be able to click the buttons and add the command blocks.
+
+image::images/add.gif[Game,width=240]
+
+Next lets add the code to remove added blocks:
+
+[source,javascript]
+----
+  TouchGestures.onTap(blocks.child("btn4")).subscribe(function () {
+    removeSound.setPlaying(true);
+    removeSound.reset();
+    if (blocksUsed !== 0 && currentState === states.start) {
+      let popped = commands.pop();
+      popped.block.transform.y = blockInitY;
+      popped.block.hidden = true;
+      nextBlockSlot += blockSlotInc;
+      blocksUsed--;
+    }
+  });
+----
+
+The code above allows us to remove the bottom block, we do this by popping the last command using javaScript `commands.pop();` and hiding the block we also move it back to its initial position. You can try to click the *Bin* button after adding some blocks you should see them getting removed.
+
+image::images/remove.gif[Game,width=240]
+
+=== Moving the Rabbit
+
+Now that we have the commands logic all set up it's time to make the rabbit move. Inorder to make the rabbit move we need to execute the commands that the user as entered to do that we need to write an executer function that iterates through each command in the `commands` array. Create a function called *executeCommands* and add the following code inside the function:
+
+[source,javascript]
+----
+function executeCommands() {
+    currentState = states.running;
+    let executionCommands = [];
+    for (let i = 0; i < commands.length; i++) {
+      executionCommands.push(commands[i].command);
+    }
+    setExecutionInterval(
+      function (e) {
+        animatePlayerMovement(executionCommands[e]);
+      },
+      1000,
+      executionCommands.length
+    );
+  }
+----
+
+The function above iterates through each command, gets the command value e.g. *forward*, *left* or *right*, and sets and execution interval of 1 second. Next import the *Time*, *Texture* and *Animation* module then add a variable *exeIntervalID* like this:.
+
+[source,javascript]
+----
+const Time = require("Time");
+const Textures = require("Textures");
+const Animation = require("Animation");
+let exeIntervalID;
+----
+
+And add the *setExecutionInterval* function:
+
+[source,javascript]
+----
+ function setExecutionInterval(callback, delay, repetitions) {
+    let e = 0;
+    callback(0);
+    exeIntervalID = Time.setInterval(function () {
+      callback(e + 1);
+      if (++e === repetitions) {
+        Time.clearInterval(exeIntervalID);
+        if (currentState === states.running) currentState = states.uncomplete;
+        setTexture(buttons.child("btn3"), "retry");
+        failSound.setPlaying(true);
+        failSound.reset();
+      }
+    }, delay);
+  }
+
+----
+
+The *setExecutionInterval* function takes in a callback, delay and repetations this will allow us to move the rabbit after 1 second. The callback function will contain the movement animation code. Next add the *setTexture* function we need this to dynamicaly apply textures to objects:
+
+[source,javascript]
+----
+  function setTexture(object, texture) {
+    let signal = Textures.get(texture).signal;
+    object.material.setTextureSlot("DIFFUSE", signal);
+  }
+----
+
+==== Adding Animations
+
+Now that our command execution code is all set up let us focus on Animations, to make the rabbit move forward and turn we are going to use Spark AR's *Animation Module*. Add the following function
+
+[source,javascript]
+----
+  function animatePlayerMovement(command) {
+    const timeDriverParameters = {
+      durationMilliseconds: 400,
+      loopCount: 1,
+      mirror: false,
+    };
+
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+    const translationNegX = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.x.pinLastValue(),
+        player.transform.x.pinLastValue() - gridInc
+      )
+    );
+
+    const translationPosX = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.x.pinLastValue(),
+        player.transform.x.pinLastValue() + gridInc
+      )
+    );
+
+    const translationNegZ = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.z.pinLastValue(),
+        player.transform.z.pinLastValue() - gridInc
+      )
+    );
+
+    const translationPosZ = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.z.pinLastValue(),
+        player.transform.z.pinLastValue() + gridInc
+      )
+    );
+
+    const rotationLeft = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.rotationY.pinLastValue(),
+        player.transform.rotationY.pinLastValue() + degreesToRadians(90)
+      )
+    );
+
+    const rotationRight = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.rotationY.pinLastValue(),
+        player.transform.rotationY.pinLastValue() - degreesToRadians(90)
+      )
+    );
+
+    const jump = Animation.animate(
+      timeDriver,
+      Animation.samplers.sequence({
+        samplers: [
+          Animation.samplers.easeInOutSine(playerInitY, 0.1),
+          Animation.samplers.easeInOutSine(0.1, playerInitY),
+        ],
+        knots: [0, 1, 2],
+      })
+    );
+
+    timeDriver.start();
+
+    switch (command) {
+      case "forward":
+        player.transform.y = jump;
+        jumpSound.setPlaying(true);
+        jumpSound.reset();
+        if (playerDir === "east") {
+          player.transform.x = translationPosX;
+        } else if (playerDir === "north") {
+          player.transform.z = translationNegZ;
+        } else if (playerDir === "west") {
+          player.transform.x = translationNegX;
+        } else if (playerDir === "south") {
+          player.transform.z = translationPosZ;
+        }
+        break;
+      case "left":
+        if (playerDir === "east") {
+          playerDir = "north";
+        } else if (playerDir === "north") {
+          playerDir = "west";
+        } else if (playerDir === "west") {
+          playerDir = "south";
+        } else if (playerDir === "south") {
+          playerDir = "east";
+        }
+        player.transform.rotationY = rotationLeft;
+        break;
+      case "right":
+        if (playerDir === "east") {
+          playerDir = "south";
+        } else if (playerDir === "south") {
+          playerDir = "west";
+        } else if (playerDir === "west") {
+          playerDir = "north";
+        } else if (playerDir === "north") {
+          playerDir = "east";
+        }
+        player.transform.rotationY = rotationRight;
+        break;
+    }
+  }
+----
+
+The code above will be responsible for the rabbit's movement, first, we set
+`timeDriverParameters` and a `timeDriver`, this will allow us to animate the rabbit once for 400 milliseconds. The next lines of code simply transform the rabbits *x, z, and y * positons. Below that we have a *Switch statement* that calls the correct animation based on the command, we also need to take note of the direction the rabbit is facing so that we move relative to that direction. 
+
+Now that our animation code is all setup it's time to run the commands, we need to do this on a button press, so lets update our commands switch statement we added earlier to look like this:
+
+[source,javascript]
+----
+ for (let i = 0; i < 4; i++) {
+    let button = buttons.child("btn" + i);
+    TouchGestures.onTap(button).subscribe(function () {
+      switch (i) {
+        case 0:
+          addCommand("forward");
+          break;
+        case 1:
+          addCommand("left");
+          break;
+        case 2:
+          addCommand("right");
+          break;
+        case 3:
+          clickSound.setPlaying(true);
+          clickSound.reset();
+          switch (currentState) {
+            case states.start:
+              Time.setTimeout(function () {
+                if (commands.length !== 0) executeCommands();
+              }, 300);
+              break;
+            case states.failed:
+              resetLevel();
+              break;
+            case states.uncomplete:
+              resetLevel();
+              break;
+            case states.complete:
+              nextLevel("next");
+              break;
+          }
+          break;
+      }
+    });
+  }
+----
+
+In `case 3` we run the `executeCommands()` function when the user presses the run button and we reset the level when the state is failed or incomplete. Let's add the reset function:
+
+[source,javascript]
+----
+/*------------- Reset current level -------------*/
+
+  function resetLevel() {
+    currentState = states.start;
+    playerDir = levels[currentLevel].facing;
+    commands = [];
+    blocksUsed = 0;
+    platformsUsed = 0;
+    nextBlockSlot = initBlockSlot;
+
+    player.hidden = false;
+
+    setTexture(buttons.child("btn3"), "play");
+    Time.clearInterval(exeIntervalID);
+
+    for (let i = 0; i < numOfBlocks; i++) {
+      let block = blocks.child("block" + i);
+      block.transform.y = blockInitY;
+      block.hidden = true;
+    }
+
+    initLevel();
+  }
+----
+
+This function sets all the game values back to thier inital values. We also need a fucntion to take users to the next level add the following code for that:
+
+[source,javascript]
+----
+  function nextLevel(state) {
+    if (state === "next") {
+      currentLevel++;
+    } else {
+      currentLevel = 0;
+    }
+
+    allCoordinates = createAllCoordinates();
+    pathCoordinates = createPathCoordinates();
+    dangerCoordinates = createDangerCoordinates();
+
+    for (let i = 0; i < numOfPlatforms; i++) {
+      let platform = platforms.child("platform" + i);
+      platform.hidden = true;
+    }
+
+    resetLevel();
+  }
+----
+
+The function above will increase the current level and regenerate the level coordinates for the new level. We can now test the game, you should be able to see the rabbit move based on the commands added.
+
+image::images/move.gif[Game,width=240]
+
+
+=== Monitoring the Player's Position
+
+Currently, the rabbit can move but we need a way to check if the rabbit has reached the goal or fallen off the path, to do that we are going to use the Spark AR *Reactive Module*. 
+
+Spark AR Studio's implementation of reactive programming allows you to create relationships between objects, assets, and values. This means that the engine doesn't have to execute JavaScript code every frame when performing common tasks such as animating content, looking for user input, or realigning a mask to a face.
+
+Reactive programming is also compatible with visual programming, reducing the frequency of calls made into the scripting engine.
+
+First lets import the reactive module like this:
+
+[source,javascript]
+----
+const Reactive = require("Reactive");
+----
+
+Next add the following code:
+
+[source,javascript]
+----
+ Reactive.monitorMany({
+    x: player.transform.x,
+    z: player.transform.z,
+  }).subscribe(({ newValues }) => {
+    let playerX = newValues.x;
+    let playerZ = newValues.z;
+    let goalX = pathCoordinates[pathCoordinates.length - 1][0];
+    let goalZ = pathCoordinates[pathCoordinates.length - 1][1];
+    let collisionArea = 0.005;
+
+    // Check if player is on the goal
+    if (
+      isBetween(playerX, goalX + collisionArea, goalX - collisionArea) &&
+      isBetween(playerZ, goalZ + collisionArea, goalZ - collisionArea)
+    ) {
+      player.transform.x = goalX;
+      player.transform.z = goalZ;
+      commands = [];
+      Time.clearInterval(exeIntervalID);
+      changeState(states.complete, "next");
+      carrot.hidden = true;
+      animateLevelComplete();
+      completeSound.setPlaying(true);
+      completeSound.reset();
+    }
+
+    // Check if player is on a danger zone
+    for (let i = 0; i < dangerCoordinates.length; i++) {
+      let dx = dangerCoordinates[i][0];
+      let dz = dangerCoordinates[i][1];
+      if (
+        isBetween(playerX, dx + collisionArea, dx - collisionArea) &&
+        isBetween(playerZ, dz + collisionArea, dz - collisionArea)
+      ) {
+        player.transform.x = dx;
+        player.transform.z = dz;
+        commands = [];
+        Time.clearInterval(exeIntervalID);
+        changeState(states.failed, "retry");
+        animatePlayerFall();
+        dropSound.setPlaying(true);
+        dropSound.reset();
+      }
+    }
+  });
+
+  function isBetween(n, a, b) {
+    return (n - a) * (n - b) <= 0;
+  }
+
+  function changeState(state, buttonText) {
+    Time.setTimeout(function () {
+      currentState = state;
+      setTexture(buttons.child("btn3"), buttonText);
+    }, 500);
+  }
+----
+
+In the code above we use `monitorMany` from the *Reactive Module*. `monitorMany` accepts the rabbit's *x* and *z* transform values, we need to monitor these values in order to check if the player is on the *goal* coordinates or the *dangerzone* coordinates. 
+
+[source,javascript]
+----
+   if (
+      isBetween(playerX, goalX + collisionArea, goalX - collisionArea) &&
+      isBetween(playerZ, goalZ + collisionArea, goalZ - collisionArea)
+    ) {
+      player.transform.x = goalX;
+      player.transform.z = goalZ;
+      commands = [];
+      Time.clearInterval(exeIntervalID);
+      changeState(states.complete, "next");
+      carrot.hidden = true;
+      animateLevelComplete();
+      completeSound.setPlaying(true);
+      completeSound.reset();
+    }
+----
+
+
+The code above checks if the player's X and Z values are on the goal coordinates, if that happens change our game state to complete. 
+
+[source,javascript]
+----
+for (let i = 0; i < dangerCoordinates.length; i++) {
+      let dx = dangerCoordinates[i][0];
+      let dz = dangerCoordinates[i][1];
+      if (
+        isBetween(playerX, dx + collisionArea, dx - collisionArea) &&
+        isBetween(playerZ, dz + collisionArea, dz - collisionArea)
+      ) {
+        player.transform.x = dx;
+        player.transform.z = dz;
+        commands = [];
+        Time.clearInterval(exeIntervalID);
+        changeState(states.failed, "retry");
+        animatePlayerFall();
+        dropSound.setPlaying(true);
+        dropSound.reset();
+      }
+    }
+  });
+----
+
+From the code above we iterate through all the danger coordinates and check if the players X and Z values match any of them, if that happens we set the game's state to *failed*.
+
+=== Adding More Animations
+
+Next, we need to add the *Level Complete Animation* and the *Level Failed Animation*, Add the following code:
+
+==== Level Complete Animation
+
+[source,javascript]
+----
+  function animateLevelComplete() {
+    const timeDriverParameters = {
+      durationMilliseconds: 450,
+      loopCount: 2,
+      mirror: false,
+    };
+
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+
+    const jump = Animation.animate(
+      timeDriver,
+      Animation.samplers.sequence({
+        samplers: [
+          Animation.samplers.easeInOutSine(playerInitY, 0.1),
+          Animation.samplers.easeInOutSine(0.1, playerInitY),
+        ],
+        knots: [0, 1, 2],
+      })
+    );
+
+    player.transform.y = jump;
+
+    timeDriver.start();
+  }
+----
+
+The animation above make the rabbit jump up and down when it reaches the goal.
+
+==== Level Failed Animation
+
+[source,javascript]
+----
+  function animatePlayerFall() {
+    emmitWaterParticles();
+    const timeDriverParameters = {
+      durationMilliseconds: 100,
+      loopCount: 1,
+      mirror: false,
+    };
+
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+
+    const moveY = Animation.animate(
+      timeDriver,
+      Animation.samplers.easeInOutSine(playerInitY - 0.1, -0.17)
+    );
+
+    player.transform.y = moveY;
+
+    timeDriver.start();
+
+    Time.setTimeout(function () {
+      player.hidden = true;
+    }, 200);
+  }
+----
+
+The animation code above makes the rabbit fall over a platform when ti arrives on the danger zone.
+
+==== Player Idle animation
+
+[source,javascript]
+----
+function animatePlayerIdle() {
+    const timeDriverParameters = {
+      durationMilliseconds: 400,
+      loopCount: Infinity,
+      mirror: true,
+    };
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+
+    const scale = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        player.transform.scaleY.pinLastValue(),
+        player.transform.scaleY.pinLastValue() + 0.02
+      )
+    );
+
+    player.transform.scaleY = scale;
+
+    timeDriver.start();
+  }
+
+  animatePlayerIdle();
+----
+
+In game design, Idle animations refer to animations within video games that occur when the player character does not do any action (hence being idle). The code above makes the rabbit scale up and down when idle.
+
+==== Carrot Animation
+
+[source,javascript]
+----
+ function animateCarrot() {
+    const timeDriverParameters = {
+      durationMilliseconds: 2500,
+      loopCount: Infinity,
+      mirror: false,
+    };
+
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+
+    const rotate = Animation.animate(
+      timeDriver,
+      Animation.samplers.linear(
+        carrot.transform.rotationY.pinLastValue(),
+        carrot.transform.rotationY.pinLastValue() - degreesToRadians(360)
+      )
+    );
+
+    carrot.transform.rotationY = rotate;
+
+    timeDriver.start();
+  }
+
+  animateCarrot();
+----
+
+The code above makes the carrot rotate in the Y-axis this is to make the game look more dynamic.
+
+==== Water Splash Animation
+
+The last animation we are going to add is the splash animation when the rabbit falls in the water, unlike the other animations with one uses *particles*.  
+
+We need to create the particle effect in Spark AR studio but first let's add the code, add this line at the end of *Promise.all*
+
+[source,javascript]
+----
+Scene.root.findFirst("water_emitter"),
+----
+
+This will import the particle emitter we are yet to create from our Scene. Next, add this line.
+
+[source,javascript]
+----
+const waterEmitter = results[11];
+----
+
+After that add the following code:
+
+[source,javascript]
+----
+  function emmitWaterParticles() {
+    const sizeSampler = Animation.samplers.easeInQuad(0.015, 0.007);
+    waterEmitter.transform.x = player.transform.x;
+    waterEmitter.transform.z = player.transform.z;
+    waterEmitter.birthrate = 500;
+    waterEmitter.sizeModifier = sizeSampler;
+
+    Time.setTimeout(function () {
+      player.hidden = true;
+      waterEmitter.birthrate = 0;
+    }, 200);
+  }
+----
+
+The code above will emit particles when the player falls in the water.
+
+==== Adding a Particle System
+
+To add a particle system to your scene:
+
+. Click *Add Object*.
+. Select *Particle System* from the menu.
+. Name it *water_emitter*
+. Move it to the *level* null object
+
+In the Inspector panel give your particle emitter the following values:
+
+image::images/p1.JPG[Image]
+image::images/p2.JPG[Image]
+image::images/p3.JPG[Image]
+
+That's it! If we run our effect we should see the game working as expected.
+
+image::images/final.gif[Game,width=240]
+
+
+== What’s Next?
+
+If you’d like to continue building on this project, here are a few ideas:
+
+- Add more commands such as loops
+- Design more levels
+- Add more game modes
+
+=== Learning Resources
+
+Looking for more ways to develop your Spark AR skills Check out the https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[Official Spark AR Tutorials]. I used the following sites to obtain some of the game assets:
+
+- https://www.kenney.nl/assets[Kenney Game Assets] 
+
+- https://freesound.org/[Free Sound] 
+
+You can find the full code sample on https://github.com/harrybanda/Rabbit-Coder-Sample-Full[GitHub].
+
+Thanks for reading! Happy coding! 
