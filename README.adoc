@@ -934,7 +934,7 @@ Now that our command execution code is all set up let us focus on Animations, to
 ----
 
 The code above will be responsible for the rabbit's movement, first, we set
-`timeDriverParameters` and a `timeDriver`, this will allow us to animate the rabbit once for 400 milliseconds. The next lines of code simply transform the rabbits *x, z, and y * positons. Below that we have a *Switch statement* that calls the correct animation based on the command, we also need to take note of the direction the rabbit is facing so that we move relative to that direction. 
+`timeDriverParameters` and a `timeDriver`, this will allow us to animate the rabbit once for 400 milliseconds. The next lines of code simply transform the rabbits *x, z, and y* positons. Below that we have a *Switch* statement that calls the correct animation based on the command, we also need to take note of the direction the rabbit is facing so that we move relative to that direction. 
 
 Now that our animation code is all setup it's time to run the commands, we need to do this on a button press, so lets update our commands switch statement we added earlier to look like this:
 
