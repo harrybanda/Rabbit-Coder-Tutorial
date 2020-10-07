@@ -1352,6 +1352,12 @@ If you’d like to continue building on this project, here are a few ideas:
 
 Looking for more ways to develop your Spark AR skills Check out the https://sparkar.facebook.com/ar-studio/learn/tutorials/[official Spark AR Tutorials].
 
+- https://sparkar.facebook.com/ar-studio/learn/articles/world-effects/world-effects-introduction/[World Effects]
+- https://sparkar.facebook.com/ar-studio/learn/scripting/scripting-basics[Scripting Basics]
+- https://sparkar.facebook.com/ar-studio/learn/scripting/reactive-programming[Reactive Programming]
+- https://sparkar.facebook.com/ar-studio/learn/tutorials/adding-particle-systems/[Particle Systems]
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promises]
+
 You can find the full code sample on https://github.com/harrybanda/Rabbit-Coder-Sample-Full[GitHub].
 
 Thanks for reading! Happy coding! 
