@@ -1358,9 +1358,10 @@ Looking for more ways to develop your Spark AR skills Check out the https://spar
 - https://sparkar.facebook.com/ar-studio/learn/tutorials/adding-particle-systems/[Particle Systems]
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise[Promises]
 
-The assets used in this game can be found at the following links:
+Some of the free assets used in this game can be found at the following links:
 
 - https://www.kenney.nl/assets/platformer-kit[Kenney Platformer Kit]
+- https://www.kenney.nl/assets/food-kit[Kenney Food Kit]
 - https://www.kenney.nl/assets/interface-sounds[Kenney Interface Sounds]
 - https://freesound.org/[Free Sounds]
 - https://gifer.com/en/OVZK[2D Seamless Water Texutre]
