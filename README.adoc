@@ -1,4 +1,4 @@
-= Spark AR Scripting Tutorial: Building an AR Puzzle Game
+= Spark AR Scripting Tutorial: Building an AR Game
 
 image::images/RC.png[Bunny]
 
