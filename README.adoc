@@ -1183,6 +1183,10 @@ function animatePlayerIdle() {
 
 In game design, https://en.wikipedia.org/wiki/Idle_animations[Idle animations] refer to animations within video games that occur when the player character does not do any action (hence being idle). The code above makes the rabbit scale up and down when idle. As you can see in the gif below the rabbit has a slight movement in the Y axis.
 
+The *Time driver* allows us to specify a duration in milliseconds for the animation along with optional parameters for looping and mirroring.
+
+The samplers property of the animation module gives us access to the SamplerFactory class, which we use to set the easing function.
+
 image::images/idle.gif[Game]
 
 ==== Carrot Animation
