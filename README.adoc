@@ -1154,69 +1154,6 @@ From the code above we iterate through all the danger coordinates and check if t
 
 Next, we need to add the *Level Complete Animation* and the *Level Failed Animation*, Add the following code:
 
-==== Level Complete Animation
-
-[source,javascript]
-----
-  function animateLevelComplete() {
-    const timeDriverParameters = {
-      durationMilliseconds: 450,
-      loopCount: 2,
-      mirror: false,
-    };
-
-    const timeDriver = Animation.timeDriver(timeDriverParameters);
-
-    const jump = Animation.animate(
-      timeDriver,
-      Animation.samplers.sequence({
-        samplers: [
-          Animation.samplers.easeInOutSine(playerInitY, 0.1),
-          Animation.samplers.easeInOutSine(0.1, playerInitY),
-        ],
-        knots: [0, 1, 2],
-      })
-    );
-
-    player.transform.y = jump;
-
-    timeDriver.start();
-  }
-----
-
-The animation above makes the rabbit jump up and down when it reaches the goal.
-
-==== Level Failed Animation
-
-[source,javascript]
-----
-  function animatePlayerFall() {
-    emmitWaterParticles();
-    const timeDriverParameters = {
-      durationMilliseconds: 100,
-      loopCount: 1,
-      mirror: false,
-    };
-
-    const timeDriver = Animation.timeDriver(timeDriverParameters);
-
-    const moveY = Animation.animate(
-      timeDriver,
-      Animation.samplers.easeInOutSine(playerInitY - 0.1, -0.17)
-    );
-
-    player.transform.y = moveY;
-
-    timeDriver.start();
-
-    Time.setTimeout(function () {
-      player.hidden = true;
-    }, 200);
-  }
-----
-
-The animation code above makes the rabbit fall over a platform
-
 ==== Player Idle animation
 
 [source,javascript]
@@ -1281,6 +1218,69 @@ image::images/idle.gif[Game]
 The code above makes the carrot rotate in the Y-axis this is to make the game look more dynamic.
 
 image::images/carrot.gif[Game]
+
+==== Level Complete Animation
+
+[source,javascript]
+----
+  function animateLevelComplete() {
+    const timeDriverParameters = {
+      durationMilliseconds: 450,
+      loopCount: 2,
+      mirror: false,
+    };
+
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+
+    const jump = Animation.animate(
+      timeDriver,
+      Animation.samplers.sequence({
+        samplers: [
+          Animation.samplers.easeInOutSine(playerInitY, 0.1),
+          Animation.samplers.easeInOutSine(0.1, playerInitY),
+        ],
+        knots: [0, 1, 2],
+      })
+    );
+
+    player.transform.y = jump;
+
+    timeDriver.start();
+  }
+----
+
+The animation above makes the rabbit jump up and down when it reaches the goal.
+
+==== Level Failed Animation
+
+[source,javascript]
+----
+  function animatePlayerFall() {
+    emmitWaterParticles();
+    const timeDriverParameters = {
+      durationMilliseconds: 100,
+      loopCount: 1,
+      mirror: false,
+    };
+
+    const timeDriver = Animation.timeDriver(timeDriverParameters);
+
+    const moveY = Animation.animate(
+      timeDriver,
+      Animation.samplers.easeInOutSine(playerInitY - 0.1, -0.17)
+    );
+
+    player.transform.y = moveY;
+
+    timeDriver.start();
+
+    Time.setTimeout(function () {
+      player.hidden = true;
+    }, 200);
+  }
+----
+
+The animation code above makes the rabbit fall over a platform
 
 ==== Water Splash Animation
 
