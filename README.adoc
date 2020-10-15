@@ -1152,8 +1152,6 @@ From the code above we iterate through all the danger coordinates and check if t
 
 === Adding More Animations
 
-Next, we need to add the *Level Complete Animation* and the *Level Failed Animation*, Add the following code:
-
 ==== Player Idle animation
 
 [source,javascript]
