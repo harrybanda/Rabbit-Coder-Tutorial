@@ -924,6 +924,7 @@ Now that our command execution code is all set up let us focus on Animations, to
 ----
 
 The code above will be responsible for the rabbit's movement, first, we set `timeDriverParameters` and a `timeDriver`, this will allow us to animate the rabbit once for 400 milliseconds. The next lines of code simply transform the rabbits *x, z, and y* positons, next we have a *Switch* statement that executes the correct animation code based on the command, we also need to take note of the direction the rabbit is facing so that we move the rabbit in the direction it's facing. From the gif below you can see that the rabbit can hop forward, the rabbit will also be able to turn left or right.
+The *Time driver* allows us to specify a duration in milliseconds for the animation along with optional parameters for looping and mirroring. The *samplers* property of the animation module gives us access to the SamplerFactory class, which we use to set the easing function.
 
 image::images/hop.gif[Game, width=200]
 
@@ -1181,10 +1182,6 @@ function animatePlayerIdle() {
 ----
 
 In game design, https://en.wikipedia.org/wiki/Idle_animations[Idle animations] refer to animations within video games that occur when the player character does not do any action (hence being idle). The code above makes the rabbit scale up and down when idle. As you can see in the gif below the rabbit has a slight movement in the Y axis.
-
-The *Time driver* allows us to specify a duration in milliseconds for the animation along with optional parameters for looping and mirroring.
-
-The samplers property of the animation module gives us access to the SamplerFactory class, which we use to set the easing function.
 
 image::images/idle.gif[Game]
 
