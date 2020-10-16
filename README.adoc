@@ -27,7 +27,7 @@ NOTE: To make this tutorial easier and shorter, we will not include all the feat
 - Obstacle and switch levels
 - Loop levels
 
-=== Rabbit Coder Game Design
+=== Understanding the Game
 
 The objective of the game is to get the rabbit to the carrot using commands such as *forward*, *left*, and *right*, you need to insert these commands in the game and press the play button to execute them. The image below shows an example of one of the levels. The player must pass through the path to reach the goal without falling on the danger zone.
 
