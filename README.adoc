@@ -55,9 +55,9 @@ Make sure you meet the following knowledge prerequisites before starting the tut
 
 For this tutorial you will need:
 
-* Spark AR Studio v97 and above
+* https://sparkar.facebook.com/ar-studio/learn/downloads/[Spark AR Studio] v97 and above
 
-* Visual Studio Code (any code editor will work too)
+* https://code.visualstudio.com/download[Visual Studio Code] (any code editor will work too)
 
 === Downloading the Project
 
