@@ -470,7 +470,7 @@ The default unit of measurement in Spark AR is Meters, so our values will be in 
   }
 ----
 
-The `createAllCoordinates` function has a nested for loop that generates a 7 X 7 grid, the generated coordinate values are then stored in the `allCoordinates` variable. In the second for loop, we set the *x* and *z* values for each coordinate. The code *Math.round(i * 1e4)* rounds the value to the nearest integer.
+The `createAllCoordinates` function has a nested for loop that generates a 7 X 7 grid, the generated coordinate values are then stored in the `allCoordinates` variable. In the second for loop, we set the *x* and *z* values for each coordinate. The code `Math.round(i * 1e4)` rounds the value to the nearest integer.
 
 image::images/grid_2.png[Image]
 
