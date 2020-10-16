@@ -65,7 +65,7 @@ To follow this tutorial:
 
 . https://github.com/harrybanda/Rabbit-Coder-Sample-Starter[Download the sample project].
 
-. Open the sample project in Spark AR Studio v97 and above.
+. Open the sample project in Spark AR Studio.
 
 I have already imported the required game assets you need to help you get started.
 
