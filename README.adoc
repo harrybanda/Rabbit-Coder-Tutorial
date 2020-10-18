@@ -20,7 +20,7 @@ This tutorial will cover the following key concepts:
 
 This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called Rabbit Coder, it's a game that helps first-time coders learn about the basic concepts of programming through puzzles. I created https://devpost.com/software/rabbit-coder[Rabbit Coder] for the first Facebook AR hackathon and the project won first place in the hackathon. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here] for yourself. By the end of this tutorial, you should have learned how to build a game with scripting in Spark AR.
 
-image::images/demo-gif.gif[Game,width=240]
+image::images/demo.gif[Game,width=240]
 
 NOTE: To make this tutorial easier and shorter, we will not include all the features of Rabbit Coder. The following faetures will *not* be included:
 
