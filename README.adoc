@@ -18,7 +18,7 @@ This tutorial will cover the following key concepts:
 
 === What We'll Build
 
-This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called https://devpost.com/software/rabbit-coder[Rabbit Coder]. I created the game for the first Facebook AR hackathon, the project won first place in the hackathon. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here] for yourself. By the end of this tutorial, you should have learned how to build a game with scripting in Spark AR.
+This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called https://devpost.com/software/rabbit-coder[Rabbit Coder]. I created the game for the first Facebook AR hackathon, the project won first place in the hackathon. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here] for yourself. By the end of this tutorial, you should have learned how to build this game with scripting in Spark AR, you can then use this as a template to build other awesome games.
 
 image::images/demo-gif.gif[Game,width=240]
 
