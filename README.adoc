@@ -1,4 +1,4 @@
-= Spark AR Scripting Tutorial: Building an AR Game
+= Spark AR Tutorial: Building an AR Game
 
 image::images/RC.png[Bunny]
 
@@ -10,15 +10,15 @@ In this tutorial, you will build a Spark AR World Effect. You will learn how to 
 
 This tutorial will cover the following key concepts:
 
-- Writing game logic with the Spark AR scripting module
+- Writing game logic with the scripting module
 
 - Working with reactive programming in Spark AR
 
-- Creating animations with the Spark AR scripting module
+- Creating animations with the scripting module
 
 === What We'll Build
 
-This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called https://devpost.com/software/rabbit-coder[Rabbit Coder]. I created the game for the first Facebook AR hackathon, the project won first place in the hackathon. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here] for yourself. By the end of this tutorial, you should have learned how to build this game with scripting in Spark AR, you can then use this as a template to build other awesome games.
+This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called https://devpost.com/software/rabbit-coder[Rabbit Coder]. I created this game for the first Facebook AR hackathon and the project won first place. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here]. By the end of this tutorial, you should have learned how to build this game with scripting in Spark AR, you can then use this as a template to build other awesome games.
 
 image::images/demo-gif.gif[Game,width=240]
 
