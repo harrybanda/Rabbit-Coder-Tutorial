@@ -18,7 +18,7 @@ This tutorial will cover the following key concepts:
 
 === What We'll Build
 
-This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called https://devpost.com/software/rabbit-coder[Rabbit Coder]. I created this game for the first Facebook AR hackathon and the project won first place. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here]. By the end of this tutorial, you should have learned how to build this game with scripting in Spark AR, you can then use this as a template to build other awesome games.
+This tutorial will guide you in a step-by-step process to create an augmented reality puzzle game called https://devpost.com/software/rabbit-coder[Rabbit Coder]. I created this game for the first Facebook AR hackathon and the project won first place. You can try out the game https://www.facebook.com/fbcameraeffects/tryit/208527660353698/[here]. By the end of this tutorial, you should have learned how to build this game in Spark AR, you can then use this as a template to build other awesome games.
 
 image::images/demo-gif.gif[Game,width=240]
 
@@ -55,13 +55,13 @@ For this tutorial you will need:
 
 * https://sparkar.facebook.com/ar-studio/learn/downloads/[Spark AR Studio] v97 and above
 
-* https://code.visualstudio.com/download[Visual Studio Code] (any code editor will work too)
+* https://code.visualstudio.com/download[Visual Studio Code]
 
 === Downloading the Project
 
 To follow this tutorial:
 
-. https://github.com/harrybanda/Rabbit-Coder-Sample-Starter[Download the sample project].
+. https://github.com/harrybanda/Rabbit-Coder-Sample-Starter[Download the unfinished sample project].
 
 . Open the sample project in Spark AR Studio.
 
